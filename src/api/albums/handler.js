@@ -54,12 +54,16 @@ class AlbumsHandler {
   async getAlbumByIdHandler(request, h) {
     try {
       const { id } = request.params;
+      const songs = await this._service.getSongsByAlbumId(id);
       const album = await this._service.getAlbumById(id);
 
       return {
         status: 'success',
         data: {
-          album,
+          album: {
+            ...album,
+            songs,
+          },
         },
       };
     } catch (error) {
@@ -69,6 +73,7 @@ class AlbumsHandler {
           message: error.message,
         });
         response.code(error.statusCode);
+        console.error(error);
         return response;
       }
 
