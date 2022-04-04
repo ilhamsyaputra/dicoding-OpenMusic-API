@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 const ClientError = require('../../exceptions/ClientError');
-const { successResponse, failResponse, serverErrorResponse } = require('../../utils/response');
+const { successResponse, failResponse, serverErrorResponse } = require('../../utils/responseHandler');
 
 class SongHandler {
   constructor(service, validator) {
