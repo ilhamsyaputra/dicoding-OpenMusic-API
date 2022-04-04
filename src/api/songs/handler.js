@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 const ClientError = require('../../exceptions/ClientError');
+const { successResponse, failResponse, serverErrorResponse } = require('../../utils/response');
 
 class SongHandler {
   constructor(service, validator) {
@@ -21,41 +22,28 @@ class SongHandler {
         title, year, genre, performer, duration, albumId = '',
       } = request.payload;
 
-      const songId = await this._service.addSong({
+      const _songId = await this._service.addSong({
         title, year, genre, performer, duration, albumId,
       });
 
-      const response = h.response({
-        status: 'success',
-        message: 'Lagu berhasil ditambahkan',
+      return successResponse(h, {
+        message: 'Lagu berhasil ditambahkann',
         data: {
-          songId,
+          songId: _songId,
         },
+        responseCode: 201,
       });
-      response.code(201);
-      return response;
     } catch (error) {
       if (error instanceof ClientError) {
-        const response = h.response({
-          status: 'fail',
-          message: error.message,
-        });
-        response.code(error.statusCode);
-        return response;
+        return failResponse(h, error);
       }
 
       //* server error
-      const response = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server.',
-      });
-      response.code(500);
-      console.error(error);
-      return response;
+      return serverErrorResponse(h);
     }
   }
 
-  async getSongsHandler(request) {
+  async getSongsHandler(request, h) {
     const { title, performer } = request.query;
     const songs = await this._service.getSongs();
 
@@ -76,8 +64,7 @@ class SongHandler {
       );
     }
 
-    return {
-      status: 'success',
+    return successResponse(h, {
       data: {
         songs: filteredSong.map((song) => ({
           id: song.id,
@@ -85,37 +72,26 @@ class SongHandler {
           performer: song.performer,
         })),
       },
-    };
+    });
   }
 
   async getSongByIdHandler(request, h) {
     try {
       const { id } = request.params;
-      const song = await this._service.getSongById(id);
+      const songs = await this._service.getSongById(id);
 
-      return {
-        status: 'success',
+      return successResponse(h, {
         data: {
-          song,
+          song: songs,
         },
-      };
+      });
     } catch (error) {
       if (error instanceof ClientError) {
-        const response = h.response({
-          status: 'fail',
-          message: error.message,
-        });
-        response.code(error.statusCode);
-        return response;
+        return failResponse(h, error);
       }
 
       //* server error
-      const response = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server kami.',
-      });
-      response.code(500);
-      return response;
+      return serverErrorResponse(h);
     }
   }
 
@@ -125,28 +101,16 @@ class SongHandler {
       const { id } = request.params;
       await this._service.updateSongById(id, request.payload);
 
-      return {
-        status: 'success',
+      return successResponse(h, {
         message: 'Detail lagu berhasil diperbarui',
-      };
+      });
     } catch (error) {
       if (error instanceof ClientError) {
-        const response = h.response({
-          status: 'fail',
-          message: error.message,
-        });
-        response.code(error.statusCode);
-        return response;
+        return failResponse(h, error);
       }
 
       //* server error
-      const response = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server',
-      });
-      response.code(500);
-      console.error(error);
-      return response;
+      return serverErrorResponse(h);
     }
   }
 
@@ -155,27 +119,16 @@ class SongHandler {
       const { id } = request.params;
       await this._service.deleteSongById(id);
 
-      return {
-        status: 'success',
+      return successResponse(h, {
         message: 'Lagu berhasil dihapus',
-      };
+      });
     } catch (error) {
       if (error instanceof ClientError) {
-        const response = h.response({
-          status: 'fail',
-          message: error.message,
-        });
-        response.code(error.statusCode);
-        return response;
+        return failResponse(h, error);
       }
 
       //* server error
-      const response = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server',
-      });
-      response.code(500);
-      return response;
+      return serverErrorResponse(h);
     }
   }
 }

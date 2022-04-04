@@ -1,29 +1,33 @@
-const successResponse = (h, { responseMessage, responseData, responseCode = 200 }) => {
-  const response = { status: 'success' };
+const successResponse = (h, { message, data, responseCode = 200 }) => {
+  const response = {
+    status: 'success',
+  };
 
-  if (responseData) {
-    response.data = responseData;
-  }
-
-  if (responseMessage) {
-    response.message = responseMessage;
+  if (message) {
+    response.message = message;
+  } if (data) {
+    response.data = data;
   }
 
   return h.response(response).code(responseCode);
 };
 
-const failResponse = (h, error) => (
-  h.response({
+const failResponse = (h, error) => {
+  const response = h.response({
     status: 'fail',
     message: error.message,
-  }).code(error.statusCode)
-);
+  });
+  response.code(error.statusCode);
+  return response;
+};
 
-const errorResponse = (h) => (
-  h.response({
+const serverErrorResponse = (h) => {
+  const response = h.response({
     status: 'error',
-    message: 'Maaf, terjadi kesalahan pada server',
-  }).code(500)
-);
+    message: 'Maaf, sedang terjadi kegagalan pada server. Coba lagi nanti',
+  });
+  response.code(500);
+  return response;
+};
 
-module.exports = { successResponse, failResponse, errorResponse };
+module.exports = { successResponse, failResponse, serverErrorResponse };
