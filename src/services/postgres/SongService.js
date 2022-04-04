@@ -49,7 +49,7 @@ class SongService {
 
   async updateSongById(id, { title, year, genre, performer, duration, albumId }) {
     const query = {
-      text: 'UPDATE songs SET title = $1, year = $2, genre = $3, performer = $4, duration = $5, albumId = $6 WHERE id = $7 RETURNING id',
+      text: 'UPDATE songs SET title = $1, year = $2, genre = $3, performer = $4, duration = $5, "albumId" = $6 WHERE id = $7 RETURNING id',
       values: [title, year, genre, performer, duration, albumId, id],
     };
 
@@ -62,7 +62,7 @@ class SongService {
 
   async deleteSongById(id) {
     const query = {
-      text: 'DELETE FROM songs WHERE id = $1',
+      text: 'DELETE FROM songs WHERE id = $1 RETURNING id',
       values: [id],
     };
 

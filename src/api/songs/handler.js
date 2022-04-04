@@ -126,6 +126,7 @@ class SongHandler {
         message: 'Maaf, terjadi kegagalan pada server',
       });
       response.code(500);
+      console.error(error);
       return response;
     }
   }
