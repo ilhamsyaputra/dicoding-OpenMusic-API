@@ -7,10 +7,11 @@ const {
 const ClientError = require('../../exceptions/ClientError');
 
 class PlaylistsHandler {
-  constructor(service, songsService, validator) {
+  constructor(service, songsService, playlistsActivitiesService, validator) {
     this._service = service;
     this._validator = validator;
     this._songsService = songsService;
+    this._playlistsActivitiesService = playlistsActivitiesService;
 
     this.postPlaylistHandler = this.postPlaylistHandler.bind(this);
     this.getPlaylistsHandler = this.getPlaylistsHandler.bind(this);
@@ -98,6 +99,7 @@ class PlaylistsHandler {
       await this._songsService.getSongById(songId);
       await this._service.verifyPlaylistAccess(id, credentialId);
       await this._service.addSongToPlaylist(id, songId);
+      await this._playlistsActivitiesService.logActivities(id, songId, credentialId, 'add');
 
       return successResponse(h, {
         message: 'Lagu berhasil ditambahkan ke playlist',
@@ -109,6 +111,7 @@ class PlaylistsHandler {
       }
 
       // server error
+      console.error(error);
       return serverErrorResponse(h);
     }
   }
@@ -149,6 +152,7 @@ class PlaylistsHandler {
 
       await this._service.verifyPlaylistAccess(id, credentialId);
       await this._service.deleteSongFromPlaylistBySongId(songId, id);
+      await this._playlistsActivitiesService.logActivities(id, songId, credentialId, 'delete');
 
       return successResponse(h, {
         message: 'Lagu berhasil dihapus dari playlist',
