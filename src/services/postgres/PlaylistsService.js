@@ -6,8 +6,9 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 const ForbiddenError = require('../../exceptions/ForbiddenError');
 
 class PlaylistsService {
-  constructor() {
+  constructor(collaborationService) {
     this._pool = new Pool();
+    this._collaborationService = collaborationService;
   }
 
   async addPlaylist({ name, credentialId }) {
@@ -33,7 +34,9 @@ class PlaylistsService {
       FROM playlists
       LEFT JOIN users
       ON playlists.owner = users.id
-      WHERE playlists.owner = $1`,
+      LEFT JOIN collaborations
+      ON collaborations.playlist_id = playlists.id
+      WHERE playlists.owner = $1 OR collaborations.user_id = $1`,
       values: [owner],
     };
 
