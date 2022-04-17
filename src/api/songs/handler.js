@@ -19,7 +19,7 @@ class SongHandler {
     try {
       this._validator.validateSongPayload(request.payload);
       const {
-        title, year, genre, performer, duration, albumId = '',
+        title, year, genre, performer, duration, albumId,
       } = request.payload;
 
       const _songId = await this._service.addSong({
@@ -38,6 +38,7 @@ class SongHandler {
         return failResponse(h, error);
       }
 
+      console.error(error);
       //* server error
       return serverErrorResponse(h);
     }

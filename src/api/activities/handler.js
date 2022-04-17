@@ -34,7 +34,6 @@ class PlaylistsActivitiesHandler {
       }
 
       // server error
-      console.error(error);
       return serverErrorResponse(h);
     }
   }
