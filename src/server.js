@@ -1,8 +1,13 @@
-/* eslint-disable no-console */
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+
+const ClientError = require('./exceptions/ClientError');
+const {
+  failResponse,
+  authErrorResponse,
+} = require('./utils/responseHandler');
 
 // albums
 const albums = require('./api/albums');
@@ -79,6 +84,20 @@ const init = async () => {
         id: artifacts.decoded.payload.id,
       },
     }),
+  });
+
+  server.ext('onPreResponse', (request, h) => {
+    // mendapatkan konteks response dari request
+    const { response } = request;
+
+    if (response instanceof ClientError) {
+      return failResponse(h, response);
+    } else if (response instanceof Error) {
+      return authErrorResponse(h, response);
+    }
+
+    // jika bukan ClientError, lanjutkan dengan response sebelumnya (tanpa terintervensi)
+    return response.continue || response;
   });
 
   await server.register([

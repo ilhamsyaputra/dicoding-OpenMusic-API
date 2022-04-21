@@ -1,7 +1,4 @@
-/* eslint-disable no-console */
-/* eslint-disable no-underscore-dangle */
-const ClientError = require('../../exceptions/ClientError');
-const { successResponse, failResponse, serverErrorResponse } = require('../../utils/responseHandler');
+const { successResponse } = require('../../utils/responseHandler');
 
 class AlbumsHandler {
   constructor(service, validator) {
@@ -15,89 +12,53 @@ class AlbumsHandler {
   }
 
   async postAlbumHandler(request, h) {
-    try {
-      this._validator.validateAlbumPayload(request.payload);
-      const { name, year } = request.payload;
+    this._validator.validateAlbumPayload(request.payload);
+    const { name, year } = request.payload;
 
-      const _albumId = await this._service.addAlbum({ name, year });
+    const _albumId = await this._service.addAlbum({ name, year });
 
-      return successResponse(h, {
-        message: 'Album berhasil ditambahkan',
-        data: {
-          albumId: _albumId,
-        },
-        responseCode: 201,
-      });
-    } catch (error) {
-      if (error instanceof ClientError) {
-        return failResponse(h, error);
-      }
-
-      //* Handling Server Error
-      return serverErrorResponse(h);
-    }
+    return successResponse(h, {
+      message: 'Album berhasil ditambahkan',
+      data: {
+        albumId: _albumId,
+      },
+      responseCode: 201,
+    });
   }
 
   async getAlbumByIdHandler(request, h) {
-    try {
-      const { id } = request.params;
-      const _songs = await this._service.getSongsByAlbumId(id);
-      const _album = await this._service.getAlbumById(id);
+    const { id } = request.params;
+    const _songs = await this._service.getSongsByAlbumId(id);
+    const _album = await this._service.getAlbumById(id);
 
-      return successResponse(h, {
-        data: {
-          album: {
-            ..._album,
-            songs: _songs,
-          },
+    return successResponse(h, {
+      data: {
+        album: {
+          ..._album,
+          songs: _songs,
         },
-      });
-    } catch (error) {
-      if (error instanceof ClientError) {
-        return failResponse(h, error);
-      }
-
-      //* Handling server Error
-      return serverErrorResponse(h);
-    }
+      },
+    });
   }
 
   async putAlbumByIdHandler(request, h) {
-    try {
-      this._validator.validateAlbumPayload(request.payload);
-      const { id } = request.params;
+    this._validator.validateAlbumPayload(request.payload);
+    const { id } = request.params;
 
-      await this._service.updateAlbumById(id, request.payload);
+    await this._service.updateAlbumById(id, request.payload);
 
-      return successResponse(h, {
-        message: 'Detail album berhasil diperbarui',
-      });
-    } catch (error) {
-      if (error instanceof ClientError) {
-        return failResponse(h, error);
-      }
-
-      //* handling server Error
-      return serverErrorResponse(h);
-    }
+    return successResponse(h, {
+      message: 'Detail album berhasil diperbarui',
+    });
   }
 
   async deleteAlbumByIdHandler(request, h) {
-    try {
-      const { id } = request.params;
-      await this._service.deleteAlbumById(id);
+    const { id } = request.params;
+    await this._service.deleteAlbumById(id);
 
-      return successResponse(h, {
-        message: 'Album berhasil dihapus',
-      });
-    } catch (error) {
-      if (error instanceof ClientError) {
-        return failResponse(h, error);
-      }
-
-      //* Server Error
-      return serverErrorResponse(h);
-    }
+    return successResponse(h, {
+      message: 'Album berhasil dihapus',
+    });
   }
 }
 

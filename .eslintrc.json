@@ -11,5 +11,9 @@
         "ecmaVersion": "latest"
     },
     "rules": {
+        "no-console": "off",
+        "no-underscore-dangle": "off",
+        "max-len": "off",
+        "no-else-return": "off"
     }
 }

@@ -1,10 +1,4 @@
-/* eslint-disable no-underscore-dangle */
-const {
-  successResponse,
-  failResponse,
-  serverErrorResponse,
-} = require('../../utils/responseHandler');
-const ClientError = require('../../exceptions/ClientError');
+const { successResponse } = require('../../utils/responseHandler');
 
 class PlaylistsActivitiesHandler {
   constructor(service, playlistsService) {
@@ -15,27 +9,18 @@ class PlaylistsActivitiesHandler {
   }
 
   async getPlaylistsActivitiesHandler(request, h) {
-    try {
-      const { id } = request.params;
-      const { id: credentialId } = request.auth.credentials;
+    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
 
-      await this._playlistsService.verifyPlaylistAccess(id, credentialId);
-      const _activities = await this._service.getPlaylistsActivities(id);
+    await this._playlistsService.verifyPlaylistAccess(id, credentialId);
+    const _activities = await this._service.getPlaylistsActivities(id);
 
-      return successResponse(h, {
-        data: {
-          playlistId: id,
-          activities: _activities,
-        },
-      });
-    } catch (error) {
-      if (error instanceof ClientError) {
-        return failResponse(h, error);
-      }
-
-      // server error
-      return serverErrorResponse(h);
-    }
+    return successResponse(h, {
+      data: {
+        playlistId: id,
+        activities: _activities,
+      },
+    });
   }
 }
 
