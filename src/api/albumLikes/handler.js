@@ -35,13 +35,13 @@ class AlbumLikesHandler {
   async getAlbumLikesHandler(request, h) {
     const { id: albumId } = request.params;
 
-    const numberOfLikes = await this._service.getNumberOfLikes(albumId);
+    const data = await this._service.getNumberOfLikes(albumId);
 
     return successResponse(h, {
       data: {
-        likes: numberOfLikes,
+        likes: data.rowCount,
       },
-    });
+    }).header('X-Data-Source', data.source);
   }
 }
 
