@@ -2,11 +2,13 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const Inert = require('@hapi/inert');
+const path = require('path');
 
 const ClientError = require('./exceptions/ClientError');
 const {
   failResponse,
-  authErrorResponse,
+  serverErrorResponse,
 } = require('./utils/responseHandler');
 
 // albums
@@ -49,6 +51,11 @@ const _exports = require('./api/exports');
 const ProducerService = require('./services/rabbitmq/ProducerService');
 const ExportsValidator = require('./validator/exports');
 
+// uploads
+const uploads = require('./api/uploads');
+const StorageService = require('./services/storage/StorageService');
+const UploadsValidator = require('./validator/uploads');
+
 const init = async () => {
   const albumService = new AlbumService();
   const songService = new SongService();
@@ -57,6 +64,7 @@ const init = async () => {
   const collaborationsService = new CollaborationsService();
   const playlistsService = new PlaylistsService(collaborationsService);
   const playlistsActivitiesService = new PlaylistsActivitiesService();
+  const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -71,6 +79,9 @@ const init = async () => {
   await server.register([
     {
       plugin: Jwt,
+    },
+    {
+      plugin: Inert,
     },
   ]);
 
@@ -97,8 +108,24 @@ const init = async () => {
 
     if (response instanceof ClientError) {
       return failResponse(h, response);
-    } else if (response instanceof Error) {
-      return authErrorResponse(h, response);
+    } if (response instanceof Error) {
+      const { statusCode, payload } = response.output;
+      console.error(response);
+      switch (statusCode) {
+        case 400:
+          return h.response(payload).code(400);
+        case 401:
+          return h.response(payload).code(401);
+        case 404:
+          return h.response(payload).code(404);
+        case 413:
+          return h.response(payload).code(413);
+        case 415:
+          return h.response(payload).code(415);
+        default:
+          console.log(response);
+          return serverErrorResponse;
+      }
     }
 
     // jika bukan ClientError, lanjutkan dengan response sebelumnya (tanpa terintervensi)
@@ -166,6 +193,14 @@ const init = async () => {
         service: ProducerService,
         validator: ExportsValidator,
         playlistsService,
+      },
+    },
+    {
+      plugin: uploads,
+      options: {
+        service: storageService,
+        albumService,
+        validator: UploadsValidator,
       },
     },
   ]);

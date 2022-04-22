@@ -34,7 +34,10 @@ class AlbumsHandler {
     return successResponse(h, {
       data: {
         album: {
-          ..._album,
+          id: _album.id,
+          name: _album.name,
+          year: _album.year,
+          coverUrl: _album.cover,
           songs: _songs,
         },
       },

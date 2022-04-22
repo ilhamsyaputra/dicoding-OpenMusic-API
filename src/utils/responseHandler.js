@@ -30,7 +30,7 @@ const serverErrorResponse = (h) => {
   return response;
 };
 
-const authErrorResponse = (h, error) => {
+const errorResponse = (h, error) => {
   const response = h.response({
     status: 'fail',
     message: error.output.payload.message,
@@ -40,5 +40,5 @@ const authErrorResponse = (h, error) => {
 };
 
 module.exports = {
-  successResponse, failResponse, serverErrorResponse, authErrorResponse,
+  successResponse, failResponse, serverErrorResponse, errorResponse,
 };
