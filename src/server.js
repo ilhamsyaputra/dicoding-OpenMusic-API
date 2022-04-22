@@ -119,7 +119,6 @@ const init = async () => {
       return failResponse(h, response);
     } if (response instanceof Error) {
       const { statusCode, payload } = response.output;
-      console.error(response);
       switch (statusCode) {
         case 400:
           return h.response(payload).code(400);
