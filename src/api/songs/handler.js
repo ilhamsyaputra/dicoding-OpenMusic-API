@@ -14,13 +14,8 @@ class SongHandler {
 
   async postSongHandler(request, h) {
     this._validator.validateSongPayload(request.payload);
-    const {
-      title, year, genre, performer, duration, albumId,
-    } = request.payload;
 
-    const _songId = await this._service.addSong({
-      title, year, genre, performer, duration, albumId,
-    });
+    const _songId = await this._service.addSong(request.payload);
 
     return successResponse(h, {
       message: 'Lagu berhasil ditambahkann',
@@ -32,29 +27,15 @@ class SongHandler {
   }
 
   async getSongsHandler(request, h) {
-    const { title, performer } = request.query;
+    const { title = '', performer = '' } = request.query;
     const songs = await this._service.getSongs();
-
-    let filteredSong = songs;
-
-    if (title && performer) {
-      filteredSong = songs.filter(
-        (song) => (song.title.toLowerCase().includes(title.toLowerCase())
-        && song.performer.toLowerCase().includes(performer.toLowerCase())),
-      );
-    } if (title) {
-      filteredSong = songs.filter(
-        (song) => song.title.toLowerCase().includes(title.toLowerCase()),
-      );
-    } if (performer) {
-      filteredSong = songs.filter(
-        (song) => song.performer.toLowerCase().includes(performer.toLowerCase()),
-      );
-    }
 
     return successResponse(h, {
       data: {
-        songs: filteredSong.map((song) => ({
+        songs: songs.filter(
+          (song) => (song.title.toLowerCase().includes(title.toLowerCase())
+              && song.performer.toLowerCase().includes(performer.toLowerCase())),
+        ).map((song) => ({
           id: song.id,
           title: song.title,
           performer: song.performer,

@@ -131,7 +131,7 @@ const init = async () => {
         case 415:
           return h.response(payload).code(415);
         default:
-          return serverErrorResponse;
+          return serverErrorResponse(h);
       }
     }
 
